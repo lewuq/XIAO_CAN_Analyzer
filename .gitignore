@@ -1,0 +1,9 @@
+.pio/
+.vscode/
+*_backup/
+output/
+*.ppm
+*.o
+*.elf
+*.exe
+__pycache__/

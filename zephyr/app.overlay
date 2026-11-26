@@ -1,0 +1,39 @@
+/* Console V1.0: SPI display plus K1/D0 and K2/BOOT as runtime keys. */
+/ {
+    zephyr,user {
+        cs-gpios = <&gpiob 0 GPIO_ACTIVE_LOW>;
+        dc-gpios = <&gpioa 3 GPIO_ACTIVE_HIGH>;
+        reset-gpios = <&gpioa 2 GPIO_ACTIVE_LOW>;
+        user-button-gpios = <&gpioa 0 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+        boot-button-gpios = <&gpioh 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+    };
+};
+&spi3 {
+    pinctrl-0 = <&spi3_sck_pe2 &spi3_mosi_pb15>;
+    pinctrl-names = "default";
+    status = "okay";
+};
+&adc1 { status = "disabled"; };
+&fdcan1 { status = "disabled"; };
+&fdcan2 {
+    bitrate = <500000>;
+    bitrate-data = <2000000>;
+    status = "okay";
+};
+
+&ext_flash {
+    partitions {
+        compatible = "fixed-partitions";
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        capture_log_partition: partition@800000 {
+            label = "can-capture-log";
+            reg = <0x800000 0x7fc000>;
+        };
+        capture_snapshot_partition: partition@ffc000 {
+            label = "can-capture-snapshot";
+            reg = <0xffc000 0x4000>;
+        };
+    };
+};
