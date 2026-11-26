@@ -1,0 +1,8 @@
+[env:seeed-xiao-stm32c5]
+platform = SeeedStudio
+board = seeed-xiao-stm32c5
+framework = zephyr
+monitor_speed = 115200
+build_flags =
+    -DCAN_TEST_ID=0x123
+    -DCAN_TEST_INTERVAL_MS=10

@@ -23,10 +23,11 @@
   <a href="firmware/latest/firmware_can_analyzer_v5_50pct.uf2?raw=true"><img src="docs/badges/download.png" height="26" alt="下载 v5 UF2"></a>
   <a href="#版本历史"><img src="docs/badges/history-zh.png" height="26" alt="固件历史"></a>
   <a href="#界面预览"><img src="docs/badges/preview-zh.png" height="26" alt="v5 界面预览"></a>
+  <a href="LICENSE"><img src="docs/badges/license.png" height="26" alt="MIT 许可证"></a>
 </p>
 
 <p align="center">
-  <strong><a href="#快速开始">快速开始</a> · <a href="#硬件">硬件</a> · <a href="#按键">按键</a> · <a href="#波特率识别">波特率识别</a> · <a href="#从源码编译">从源码编译</a></strong>
+  <strong><a href="#快速开始">快速开始</a> · <a href="#硬件">硬件</a> · <a href="#按键">按键</a> · <a href="#波特率识别">波特率识别</a> · <a href="#can-fd-台架测试">台架测试</a> · <a href="#从源码编译">从源码编译</a></strong>
 </p>
 
 <p align="center">
@@ -52,7 +53,7 @@
 | **J4** | SW1 在 A 档时，1 至 3 脚依次为 CANH、CANL 和 GND |
 | **SW1** | 将 J4 切到板载收发器或 FDCAN1 逻辑 TX/RX 通路 |
 
-该固件使用 **A 档**。B 档需要外挂 CAN FD 收发器和使用 FDCAN1 的固件。旁路接入已有双端匹配的总线时，检查 JP1 并断开 XIAO 板载的 120 Ω 终端。Console 位于总线物理末端时，该端只需要一个 120 Ω 终端。分析仪静默监听，台架发送端需由其他节点应答 ACK。[XIAO STM32C5 CAN FD 指南](https://wiki.seeedstudio.com/xiao_stm32c5_canfd_usage/)
+该固件使用 **A 档**。B 档需要外挂 CAN FD 收发器和使用 FDCAN1 的固件。旁路接入已有双端匹配的总线时，检查 JP1 并断开 XIAO 板载的 120 Ω 终端。Console 位于总线物理末端时，该端只需要一个 120 Ω 终端。[XIAO STM32C5 CAN FD 指南](https://wiki.seeedstudio.com/xiao_stm32c5_canfd_usage/)
 
 ## 按键
 
@@ -88,6 +89,26 @@
 
 ![v5 ID 列表、载荷、Flash 录制和锁定后空闲](docs/v5-capture-preview.png)
 
+## CAN FD 台架测试
+
+[下载台架发送固件 UF2](firmware/test/firmware_canfd_test_500k_2m.uf2?raw=true)，烧录到单独作为发送端的 XIAO STM32C5。固件使用 FDCAN2，仲裁速率 **500 kbit/s**、数据速率 **2 Mbit/s**，开启 BRS，发送标准 ID `0x123` 和 64 字节伪随机载荷。每次成功发送后的配置间隔为 10 ms。
+
+该固件用于在独立台架上生成测试流量。实际总线的速率、ID、载荷和流量分布可能不同。下方实拍展示速率锁定、帧类型和载荷显示。评估帧率或丢帧时，请在实际总线上与独立的帧计数对照。
+
+测试源码和编译配置以 TXT 存放。如需自行编译，在单独的 PlatformIO 工程中去掉文件名末尾的 `.txt`，按下表路径放置。
+
+| 工程路径 | TXT 文件 |
+| --- | --- |
+| `src/main.c` | [main.c.txt](docs/can-fd-test/main.c.txt) |
+| `platformio.ini` | [platformio.ini.txt](docs/can-fd-test/platformio.ini.txt) |
+| `zephyr/prj.conf` | [prj.conf.txt](docs/can-fd-test/prj.conf.txt) |
+| `zephyr/app.overlay` | [app.overlay.txt](docs/can-fd-test/app.overlay.txt) |
+| `zephyr/CMakeLists.txt` | [CMakeLists.txt.txt](docs/can-fd-test/CMakeLists.txt.txt) |
+
+| OVERVIEW 自动锁定实拍 | DATA 64 字节 CAN FD 帧实拍 |
+| --- | --- |
+| <a href="docs/photos/v5-canfd-overview.jpg"><img src="docs/photos/v5-canfd-overview.jpg" width="240" alt="分析仪实拍，已锁定 500K / 2M"></a> | <a href="docs/photos/v5-canfd-data.jpg"><img src="docs/photos/v5-canfd-data.jpg" width="240" alt="分析仪实拍，显示 0x123 帧的载荷"></a> |
+
 ## 记录
 
 - **HOLD** 冻结界面并将统计及最多 64 个 ID 的最新数据排队存入 Flash，后台继续接收。
@@ -120,3 +141,7 @@ pio run -e seeed-xiao-stm32c5
 | [v4.1](firmware/history/firmware_can_analyzer_v4_1_50pct.uf2) | 对齐局部刷新窗口，修复切页花屏。 |
 | v4 | 加入外置 Flash 录制、快照和局部刷新。 |
 | [v3](firmware/history/firmware_can_analyzer_v3_50pct.uf2) | 初版 FDCAN2 分析仪界面及双按键操作。 |
+
+## 许可证
+
+项目原创代码和台架发送程序采用 [MIT 许可证](LICENSE)。第三方组件和厂商数据手册沿用各自的条款。

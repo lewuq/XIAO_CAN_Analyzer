@@ -1,0 +1,161 @@
+#include <errno.h>
+#include <stdint.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/can.h>
+#include <zephyr/kernel.h>
+#include <zephyr/sys/atomic.h>
+#include <zephyr/sys/printk.h>
+
+#define NOMINAL_BPS 500000U
+#define DATA_BPS 2000000U
+#define PAYLOAD_SIZE 64U
+#define TX_WAIT_MS 50U
+#define RETRY_MS 100U
+
+#ifndef CAN_TEST_ID
+#define CAN_TEST_ID 0x123U
+#endif
+#ifndef CAN_TEST_INTERVAL_MS
+#define CAN_TEST_INTERVAL_MS 10U
+#endif
+
+BUILD_ASSERT(CAN_TEST_ID <= CAN_STD_ID_MASK, "CAN_TEST_ID must be an 11-bit identifier");
+BUILD_ASSERT(CAN_MAX_DLEN == PAYLOAD_SIZE, "Enable CAN FD support");
+BUILD_ASSERT(CAN_TEST_INTERVAL_MS > 0, "TX interval must be positive");
+
+static const struct device *const bus = DEVICE_DT_GET(DT_NODELABEL(fdcan2));
+K_SEM_DEFINE(tx_complete, 0, 1);
+static atomic_t tx_status;
+
+static void tx_done(const struct device *dev, int error, void *user_data)
+{
+    ARG_UNUSED(dev);
+    ARG_UNUSED(user_data);
+    atomic_set(&tx_status, error);
+    k_sem_give(&tx_complete);
+}
+
+static void fill_payload(struct can_frame *frame, uint32_t *state)
+{
+    /* xorshift32 is sufficient for reproducible bus-traffic testing. */
+    for (size_t i = 0; i < PAYLOAD_SIZE; i += 4U) {
+        uint32_t word = *state;
+        word ^= word << 13;
+        word ^= word >> 17;
+        word ^= word << 5;
+        *state = word;
+        for (size_t byte = 0; byte < 4U; ++byte) {
+            frame->data[i + byte] = (uint8_t)(word >> (byte * 8U));
+        }
+    }
+}
+
+static int setup_bus(void)
+{
+    if (!device_is_ready(bus)) {
+        return -ENODEV;
+    }
+    int ret = can_set_mode(bus, CAN_MODE_FD);
+    if (ret < 0) {
+        return ret;
+    }
+
+    struct can_timing nominal, data;
+    ret = can_calc_timing(bus, &nominal, NOMINAL_BPS, 875);
+    if (ret < 0) {
+        return ret;
+    }
+    ret = can_calc_timing_data(bus, &data, DATA_BPS, 750);
+    if (ret < 0) {
+        return ret;
+    }
+    ret = can_set_timing(bus, &nominal);
+    if (ret < 0) {
+        return ret;
+    }
+    return can_set_timing_data(bus, &data);
+}
+
+static int send_frame(const struct can_frame *frame)
+{
+    k_sem_reset(&tx_complete);
+    int ret = can_send(bus, frame, K_NO_WAIT, tx_done, NULL);
+    if (ret < 0) {
+        return ret;
+    }
+    /* can_send's timeout only bounds mailbox acquisition, not the ACK wait. */
+    if (k_sem_take(&tx_complete, K_MSEC(TX_WAIT_MS)) != 0) {
+        return -ETIMEDOUT;
+    }
+    return (int)atomic_get(&tx_status);
+}
+
+int main(void)
+{
+    printk("CAN FD TX TEST: FDCAN2 500K/2M BRS, ID=0x%03X, %u bytes, interval=%u ms\n",
+           (unsigned int)CAN_TEST_ID, PAYLOAD_SIZE, (unsigned int)CAN_TEST_INTERVAL_MS);
+    int ret = setup_bus();
+    if (ret < 0) {
+        printk("FDCAN2 configuration failed: %d\n", ret);
+        return ret;
+    }
+
+    struct can_frame frame = {
+        .id = CAN_TEST_ID,
+        .flags = CAN_FRAME_FDF | CAN_FRAME_BRS,
+        .dlc = can_bytes_to_dlc(PAYLOAD_SIZE),
+    };
+    uint32_t rng = k_cycle_get_32() | 1U;
+    uint32_t ok = 0, failed = 0;
+    uint32_t last_report = k_uptime_get_32();
+    int last_error = 0;
+    bool running = false;
+    bool restart = true;
+
+    for (;;) {
+        if (restart) {
+            if (running) {
+                ret = can_stop(bus);
+                if (ret < 0 && ret != -EALREADY) {
+                    printk("FDCAN2 stop failed: %d. Retrying.\n", ret);
+                    k_msleep(RETRY_MS);
+                    continue;
+                }
+                running = false;
+            }
+            ret = can_start(bus);
+            if (ret < 0 && ret != -EALREADY) {
+                printk("FDCAN2 start failed: %d. Retrying.\n", ret);
+                k_msleep(RETRY_MS);
+                continue;
+            }
+            running = true;
+            restart = false;
+        }
+
+        fill_payload(&frame, &rng);
+        ret = send_frame(&frame);
+        if (ret == 0) {
+            ++ok;
+        } else {
+            ++failed;
+            last_error = ret;
+            restart = ret == -ETIMEDOUT || ret == -EAGAIN ||
+                      ret == -ENETDOWN || ret == -ENETUNREACH;
+            if (restart) {
+                /* Cancel the outstanding transaction before issuing a new frame. */
+                int stopped = can_stop(bus);
+                if (stopped == 0 || stopped == -EALREADY) {
+                    running = false;
+                }
+            }
+        }
+
+        uint32_t now = k_uptime_get_32();
+        if (now - last_report >= 1000U) {
+            printk("TX ACKED=%u FAILED=%u LAST_ERR=%d\n", ok, failed, last_error);
+            last_report = now;
+        }
+        k_msleep(restart ? RETRY_MS : CAN_TEST_INTERVAL_MS);
+    }
+}

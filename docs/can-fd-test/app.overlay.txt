@@ -1,0 +1,6 @@
+/* J4/SW1 A path uses FDCAN2 and the board's TCAN3403-Q1. */
+&fdcan2 {
+    status = "okay";
+    bitrate = <500000>;
+    bitrate-data = <2000000>;
+};

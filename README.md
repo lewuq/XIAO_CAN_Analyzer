@@ -23,10 +23,11 @@
   <a href="firmware/latest/firmware_can_analyzer_v5_50pct.uf2?raw=true"><img src="docs/badges/download.png" height="26" alt="Download v5 UF2"></a>
   <a href="#version-history"><img src="docs/badges/history.png" height="26" alt="Firmware history"></a>
   <a href="#display-previews"><img src="docs/badges/preview.png" height="26" alt="v5 UI preview"></a>
+  <a href="LICENSE"><img src="docs/badges/license.png" height="26" alt="MIT License"></a>
 </p>
 
 <p align="center">
-  <strong><a href="#quick-start">Quick start</a> · <a href="#hardware">Hardware</a> · <a href="#controls">Controls</a> · <a href="#bitrate-detection">Bitrate detection</a> · <a href="#build-from-source">Build from source</a></strong>
+  <strong><a href="#quick-start">Quick start</a> · <a href="#hardware">Hardware</a> · <a href="#controls">Controls</a> · <a href="#bitrate-detection">Bitrate detection</a> · <a href="#can-fd-bench-test">Bench test</a> · <a href="#build-from-source">Build from source</a></strong>
 </p>
 
 <p align="center">
@@ -52,7 +53,7 @@
 | **J4** | Pins 1–3 carry CANH, CANL and GND with SW1 on the A contacts |
 | **SW1** | Routes J4 either to the onboard transceiver or to FDCAN1 logic-level TX/RX |
 
-Use the **A contacts** with this firmware. The B contacts need an external CAN FD transceiver and firmware configured for FDCAN1. When tapping into an already terminated bus, check JP1 and disconnect the XIAO’s onboard 120 Ω termination. When the Console terminates one physical end, use a single 120 Ω termination at that end. The analyzer runs silently, so a bench sender needs another node to acknowledge its frames. [XIAO STM32C5 CAN FD guide](https://wiki.seeedstudio.com/xiao_stm32c5_canfd_usage/)
+Use the **A contacts** with this firmware. The B contacts need an external CAN FD transceiver and firmware configured for FDCAN1. When tapping into an already terminated bus, check JP1 and disconnect the XIAO’s onboard 120 Ω termination. When the Console terminates one physical end, use a single 120 Ω termination at that end. [XIAO STM32C5 CAN FD guide](https://wiki.seeedstudio.com/xiao_stm32c5_canfd_usage/)
 
 ## Controls
 
@@ -88,6 +89,26 @@ The **v5 firmware renderer** generated these screens with simulated CAN traffic.
 
 ![v5 ID list, payload, Flash recording and retained idle lock](docs/v5-capture-preview.png)
 
+## CAN FD bench test
+
+[Download the bench transmitter UF2](firmware/test/firmware_canfd_test_500k_2m.uf2?raw=true) and flash it to a separate XIAO STM32C5 used as the transmitter. It uses FDCAN2 at **500 kbit/s nominal / 2 Mbit/s data**, with BRS, standard ID `0x123`, a 64-byte pseudorandom payload, and a configured 10 ms interval after successful sends.
+
+This firmware generates traffic for a dedicated test bus. Real buses can have different bitrates, frame IDs, payloads, and traffic patterns. Use the photos to check the locked bitrate, frame type, and payload presentation. Compare measured frame counts against a reference on the actual bus when evaluating frame rate or loss.
+
+The test source and build settings are plain-text references. To rebuild in a separate PlatformIO project, download them, remove the final `.txt` suffix, and use the paths below.
+
+| Project path | Text reference |
+| --- | --- |
+| `src/main.c` | [main.c.txt](docs/can-fd-test/main.c.txt) |
+| `platformio.ini` | [platformio.ini.txt](docs/can-fd-test/platformio.ini.txt) |
+| `zephyr/prj.conf` | [prj.conf.txt](docs/can-fd-test/prj.conf.txt) |
+| `zephyr/app.overlay` | [app.overlay.txt](docs/can-fd-test/app.overlay.txt) |
+| `zephyr/CMakeLists.txt` | [CMakeLists.txt.txt](docs/can-fd-test/CMakeLists.txt.txt) |
+
+| OVERVIEW with AUTO lock | DATA with a 64-byte CAN FD frame |
+| --- | --- |
+| <a href="docs/photos/v5-canfd-overview.jpg"><img src="docs/photos/v5-canfd-overview.jpg" width="240" alt="Bench photo of the physical v5 analyzer showing 500K / 2M locked"></a> | <a href="docs/photos/v5-canfd-data.jpg"><img src="docs/photos/v5-canfd-data.jpg" width="240" alt="Bench photo of the physical v5 analyzer showing the payload of frame 0x123"></a> |
+
 ## Capture
 
 - **HOLD** freezes the view and queues a snapshot of the statistics and up to 64 ID entries in Flash. Live reception continues.
@@ -120,3 +141,7 @@ The build produces `.pio/build/seeed-xiao-stm32c5/firmware.uf2`. The [overlay](z
 | [v4.1](firmware/history/firmware_can_analyzer_v4_1_50pct.uf2) | Aligned partial display windows to fix corruption during page changes. |
 | v4 | Added external Flash capture, snapshots and partial display updates. |
 | [v3](firmware/history/firmware_can_analyzer_v3_50pct.uf2) | Added the first standalone FDCAN2 analyzer UI and button controls. |
+
+## License
+
+The original project and bench transmitter code are available under the [MIT License](LICENSE). Third-party components and the vendor datasheet retain their respective terms.
