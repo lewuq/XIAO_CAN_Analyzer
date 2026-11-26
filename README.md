@@ -48,7 +48,7 @@
 | Part | Role |
 | --- | --- |
 | **XIAO STM32C5** | FDCAN2, onboard TCAN3403-Q1 transceiver and 16 MiB of external Flash |
-| **Console V1.0** | SH8501G SPI AMOLED, 240 × 120 landscape UI, D0 and BOOT buttons |
+| **Console V1.0** | SH8501G SPI AMOLED, 240 × 120 landscape UI, D0 and BOOT buttons · [Display datasheet (PDF)](docs/datasheets/ZJY095-2424AM002-C15.pdf) |
 | **J4** | Pins 1–3 carry CANH, CANL and GND with SW1 on the A contacts |
 | **SW1** | Routes J4 either to the onboard transceiver or to FDCAN1 logic-level TX/RX |
 

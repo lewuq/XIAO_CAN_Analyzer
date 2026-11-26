@@ -48,7 +48,7 @@
 | 部件 | 用途 |
 | --- | --- |
 | **XIAO STM32C5** | FDCAN2、板载 TCAN3403-Q1 收发器和 16 MiB 外置 Flash |
-| **Console V1.0** | SH8501G SPI AMOLED、240 × 120 横屏界面、D0 和 BOOT 两个按键 |
+| **Console V1.0** | SH8501G SPI AMOLED、240 × 120 横屏界面、D0 和 BOOT 两个按键 · [屏幕数据手册（PDF）](docs/datasheets/ZJY095-2424AM002-C15.pdf) |
 | **J4** | SW1 在 A 档时，1 至 3 脚依次为 CANH、CANL 和 GND |
 | **SW1** | 将 J4 切到板载收发器或 FDCAN1 逻辑 TX/RX 通路 |
 
