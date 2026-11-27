@@ -99,6 +99,10 @@
 | --- | --- |
 | <a href="docs/photos/v5_1-storage.jpg"><img src="docs/photos/v5_1-storage.jpg" width="400" alt="存储"></a> | <a href="docs/photos/v5_1-rate.jpg"><img src="docs/photos/v5_1-rate.jpg" width="400" alt="速率"></a> |
 
+| 载荷 |
+| --- |
+| <a href="docs/photos/v5_1-data.jpg"><img src="docs/photos/v5_1-data.jpg" width="400" alt="Data 页实拍，显示 CAN FD 帧 0x123 的载荷"></a> |
+
 ## CAN FD 台架测试
 
 [下载台架发送固件 UF2](firmware/test/firmware_canfd_test_500k_2m.uf2?raw=true)，烧录到单独作为发送端的 XIAO STM32C5。固件使用 FDCAN2，仲裁速率 **500 kbit/s**、数据速率 **2 Mbit/s**，开启 BRS，发送标准 ID `0x123` 和 64 字节伪随机载荷。每次成功发送后的配置间隔为 10 ms。

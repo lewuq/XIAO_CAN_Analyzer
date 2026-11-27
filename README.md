@@ -99,6 +99,10 @@ The **V5.1 firmware renderer** generated these screens with simulated CAN traffi
 | --- | --- |
 | <a href="docs/photos/v5_1-storage.jpg"><img src="docs/photos/v5_1-storage.jpg" width="400" alt="Storage"></a> | <a href="docs/photos/v5_1-rate.jpg"><img src="docs/photos/v5_1-rate.jpg" width="400" alt="Rate"></a> |
 
+| Data |
+| --- |
+| <a href="docs/photos/v5_1-data.jpg"><img src="docs/photos/v5_1-data.jpg" width="400" alt="Data page showing the payload of CAN FD frame 0x123"></a> |
+
 ## CAN FD bench test
 
 [Download the bench transmitter UF2](firmware/test/firmware_canfd_test_500k_2m.uf2?raw=true) and flash it to a separate XIAO STM32C5 used as the transmitter. It uses FDCAN2 at **500 kbit/s nominal / 2 Mbit/s data**, with BRS, standard ID `0x123`, a 64-byte pseudorandom payload, and a configured 10 ms interval after successful sends.
