@@ -20,9 +20,9 @@
 </p>
 
 <p align="center">
-  <a href="firmware/latest/firmware_can_analyzer_v5_50pct.uf2?raw=true"><img src="docs/badges/download.png" height="26" alt="下载 v5 UF2"></a>
+  <a href="firmware/latest/firmware_can_analyzer_v5_1_50pct.uf2?raw=true"><img src="docs/badges/download.png" height="26" alt="下载 V5.1 UF2"></a>
   <a href="#版本历史"><img src="docs/badges/history-zh.png" height="26" alt="固件历史"></a>
-  <a href="#界面预览"><img src="docs/badges/preview-zh.png" height="26" alt="v5 界面预览"></a>
+  <a href="#界面预览"><img src="docs/badges/preview-zh.png" height="26" alt="V5.1 界面预览"></a>
   <a href="LICENSE"><img src="docs/badges/license.png" height="26" alt="MIT 许可证"></a>
 </p>
 
@@ -39,7 +39,7 @@
 
 ## 快速开始
 
-1. 下载 [v5 UF2](https://github.com/lewuq/XIAO_CAN_Analyzer/raw/refs/heads/main/firmware/latest/firmware_can_analyzer_v5_50pct.uf2)。
+1. 下载 [V5.1 UF2](https://github.com/lewuq/XIAO_CAN_Analyzer/raw/refs/heads/main/firmware/latest/firmware_can_analyzer_v5_1_50pct.uf2)。
 2. 用 USB-C 连接 Console，快速按两次 XIAO 的 RESET 键。把 UF2 复制到 `XIAOC5BOOT` 盘，设备会自动重启。[Seeed UF2 烧录指南](https://wiki.seeedstudio.com/xiao_stm32c5_getting_started/#bootloader-usage)
 3. 将 **SW1 拨到 CANH/CANL 通路（A 组触点）**，再将 **J4-1 接 CANH、J4-2 接 CANL、J4-3 接 GND**。
 4. 总线有报文时，等 AUTO 自动确认速率。已知速率时，在 **RATE** 页短按 **BOOT** 选预设，长按应用。
@@ -83,11 +83,21 @@
 
 ## 界面预览
 
-由 **v5 固件的同一套界面渲染代码**绘制。预览中的帧和计数为模拟数据。
+由 **V5.1 固件的界面渲染代码**绘制，帧和计数为模拟数据。
 
-![v5 自动扫描、经典 CAN 锁定、FD+BRS 锁定和手动预设](docs/v5-rate-preview.png)
+![V5.1 自动扫描、经典 CAN 锁定、FD+BRS 锁定和手动预设](docs/v5-rate-preview.png)
 
-![v5 ID 列表、载荷、Flash 录制和锁定后空闲](docs/v5-capture-preview.png)
+![V5.1 ID 列表、载荷、Flash 录制和锁定后空闲](docs/v5-capture-preview.png)
+
+### V5.1 实机照片
+
+| 总览 | 帧列表 |
+| --- | --- |
+| <a href="docs/photos/v5_1-overview.jpg"><img src="docs/photos/v5_1-overview.jpg" width="400" alt="总览"></a> | <a href="docs/photos/v5_1-frames.jpg"><img src="docs/photos/v5_1-frames.jpg" width="400" alt="帧列表"></a> |
+
+| 存储 | 速率 |
+| --- | --- |
+| <a href="docs/photos/v5_1-storage.jpg"><img src="docs/photos/v5_1-storage.jpg" width="400" alt="存储"></a> | <a href="docs/photos/v5_1-rate.jpg"><img src="docs/photos/v5_1-rate.jpg" width="400" alt="速率"></a> |
 
 ## CAN FD 台架测试
 
@@ -137,7 +147,8 @@ pio run -e seeed-xiao-stm32c5
 
 | 固件 | 更新内容 |
 | --- | --- |
-| [v5](firmware/latest/firmware_can_analyzer_v5_50pct.uf2) | 加入自动波特率识别、手动预设和动态速率显示。 |
+| [V5.1](firmware/latest/firmware_can_analyzer_v5_1_50pct.uf2) | UI 字体改为 Montserrat Bold。 |
+| [v5](firmware/history/firmware_can_analyzer_v5_50pct.uf2) | 加入自动波特率识别、手动预设和动态速率显示。 |
 | [v4.1](firmware/history/firmware_can_analyzer_v4_1_50pct.uf2) | 对齐局部刷新窗口，修复切页花屏。 |
 | v4 | 加入外置 Flash 录制、快照和局部刷新。 |
 | [v3](firmware/history/firmware_can_analyzer_v3_50pct.uf2) | 初版 FDCAN2 分析仪界面及双按键操作。 |
@@ -145,3 +156,5 @@ pio run -e seeed-xiao-stm32c5
 ## 许可证
 
 项目原创代码和台架发送程序采用 [MIT 许可证](LICENSE)。第三方组件和厂商数据手册沿用各自的条款。
+
+Montserrat Bold 字体采用 [SIL Open Font License 1.1](docs/fonts/OFL-Montserrat.txt)。

@@ -212,6 +212,25 @@ static void save(const char *name,const struct analyzer_model *model,struct ui_s
     }
     fclose(f);
 }
+static void test_text_edges(void)
+{
+    for (int size = 1; size <= 3; ++size) {
+        gfx_clear(&c, C_NAVY);
+        gfx_text(&c, 4, 4, "08", size, C_IVORY);
+        bool ink = false;
+        bool edge = false;
+        for (int y = 0; y < 30; ++y) {
+            for (int x = 0; x < 48; ++x) {
+                uint16_t pixel = gfx_read(&c, x, y);
+                ink |= pixel == C_IVORY;
+                edge |= pixel != C_NAVY && pixel != C_IVORY;
+            }
+        }
+        /* The panel must show only the selected text and background colors. */
+        assert(ink && !edge && !c.text_overflow);
+    }
+}
+
 static void test_render(void)
 {
     gfx_clear(&c,C_NAVY);
@@ -374,6 +393,10 @@ static void render_v5_previews(void)
     save("preview_fd", &m, state);
 
     state.page = PAGE_RATE;
+    state.rate_live.active.data = 2000;
+    save("preview_rate_locked", &m, state);
+
+    state.rate_live.active.data = 4000;
     state.rate_live.phase = RATE_MANUAL;
     state.rate_selection = 5;
     save("preview_manual", &m, state);
@@ -398,7 +421,8 @@ static void render_v5_previews(void)
 }
 int main(void)
 {
-    test_model(); test_buttons(); test_navigation(); test_render(); test_dirty(); test_rate_search(); render_v5_previews();
+    test_model(); test_buttons(); test_navigation(); test_text_edges(); test_render();
+    test_dirty(); test_rate_search(); render_v5_previews();
     puts("PASS: model, buttons, navigation, render, dirty regions and bitrate scans");
     return 0;
 }

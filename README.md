@@ -20,9 +20,9 @@
 </p>
 
 <p align="center">
-  <a href="firmware/latest/firmware_can_analyzer_v5_50pct.uf2?raw=true"><img src="docs/badges/download.png" height="26" alt="Download v5 UF2"></a>
+  <a href="firmware/latest/firmware_can_analyzer_v5_1_50pct.uf2?raw=true"><img src="docs/badges/download.png" height="26" alt="Download V5.1 UF2"></a>
   <a href="#version-history"><img src="docs/badges/history.png" height="26" alt="Firmware history"></a>
-  <a href="#display-previews"><img src="docs/badges/preview.png" height="26" alt="v5 UI preview"></a>
+  <a href="#display-previews"><img src="docs/badges/preview.png" height="26" alt="V5.1 UI preview"></a>
   <a href="LICENSE"><img src="docs/badges/license.png" height="26" alt="MIT License"></a>
 </p>
 
@@ -39,7 +39,7 @@
 
 ## Quick start
 
-1. Download the [v5 UF2](https://github.com/lewuq/XIAO_CAN_Analyzer/raw/refs/heads/main/firmware/latest/firmware_can_analyzer_v5_50pct.uf2).
+1. Download the [V5.1 UF2](https://github.com/lewuq/XIAO_CAN_Analyzer/raw/refs/heads/main/firmware/latest/firmware_can_analyzer_v5_1_50pct.uf2).
 2. Connect the Console over USB-C. Double-press the XIAO RESET button, then copy the UF2 to the `XIAOC5BOOT` drive. The board restarts after copying. [Seeed UF2 guide](https://wiki.seeedstudio.com/xiao_stm32c5_getting_started/#bootloader-usage)
 3. Set **SW1 to the CANH/CANL path (A contacts)**. Connect J4-1 to **CANH**, J4-2 to **CANL**, and J4-3 to **GND**.
 4. With traffic present, let AUTO find a bitrate. For a known bitrate, open **RATE**, short-press **BOOT** to choose a preset, and hold **BOOT** to apply it.
@@ -83,11 +83,21 @@ Nominal candidates, in **kbit/s**, are 10, 20, 50, 100, 125, 250, 500, 800 and 1
 
 ## Display previews
 
-The **v5 firmware renderer** generated these screens with simulated CAN traffic.
+The **V5.1 firmware renderer** generated these screens with simulated CAN traffic.
 
-![v5 AUTO scan, nominal lock, FD+BRS lock, and manual bitrate views](docs/v5-rate-preview.png)
+![V5.1 AUTO scan, nominal lock, FD+BRS lock, and manual bitrate views](docs/v5-rate-preview.png)
 
-![v5 ID list, payload, Flash recording and retained idle lock](docs/v5-capture-preview.png)
+![V5.1 ID list, payload, Flash recording and retained idle lock](docs/v5-capture-preview.png)
+
+### V5.1 hardware photos
+
+| Overview | Frames |
+| --- | --- |
+| <a href="docs/photos/v5_1-overview.jpg"><img src="docs/photos/v5_1-overview.jpg" width="400" alt="Overview"></a> | <a href="docs/photos/v5_1-frames.jpg"><img src="docs/photos/v5_1-frames.jpg" width="400" alt="Frames"></a> |
+
+| Storage | Rate |
+| --- | --- |
+| <a href="docs/photos/v5_1-storage.jpg"><img src="docs/photos/v5_1-storage.jpg" width="400" alt="Storage"></a> | <a href="docs/photos/v5_1-rate.jpg"><img src="docs/photos/v5_1-rate.jpg" width="400" alt="Rate"></a> |
 
 ## CAN FD bench test
 
@@ -137,7 +147,8 @@ The build produces `.pio/build/seeed-xiao-stm32c5/firmware.uf2`. The [overlay](z
 
 | Firmware | What changed |
 | --- | --- |
-| [v5](firmware/latest/firmware_can_analyzer_v5_50pct.uf2) | Added automatic bitrate detection, manual presets and dynamic bitrate display. |
+| [V5.1](firmware/latest/firmware_can_analyzer_v5_1_50pct.uf2) | Changed the UI font to Montserrat Bold. |
+| [v5](firmware/history/firmware_can_analyzer_v5_50pct.uf2) | Added automatic bitrate detection, manual presets and dynamic bitrate display. |
 | [v4.1](firmware/history/firmware_can_analyzer_v4_1_50pct.uf2) | Aligned partial display windows to fix corruption during page changes. |
 | v4 | Added external Flash capture, snapshots and partial display updates. |
 | [v3](firmware/history/firmware_can_analyzer_v3_50pct.uf2) | Added the first standalone FDCAN2 analyzer UI and button controls. |
@@ -145,3 +156,5 @@ The build produces `.pio/build/seeed-xiao-stm32c5/firmware.uf2`. The [overlay](z
 ## License
 
 The original project and bench transmitter code are available under the [MIT License](LICENSE). Third-party components and the vendor datasheet retain their respective terms.
+
+Montserrat Bold is distributed under the [SIL Open Font License 1.1](docs/fonts/OFL-Montserrat.txt).

@@ -70,6 +70,7 @@ static void header(struct canvas *c, const struct analyzer_model *m,
     gfx_text(c,6,3,title,2,C_NAVY);
     bool notice = s->cleared_notice && (int32_t)(wall-s->notice_until_ms) < 0;
     const char *sub = notice ? "CLEARED" : index;
+    /* Keep the page indicator right-aligned beside the fixed status badge. */
     gfx_text(c,182-gfx_width(sub,1),7,sub,1,C_NAVY);
     bool fault = m->init_error != 0 || m->bus == BUS_OFF;
     uint16_t badge = s->holding || fault || s->storage.recording ? C_RED : C_NAVY;
@@ -90,8 +91,10 @@ static void footer(struct canvas *c, const struct ui_state *s)
 }
 static void empty(struct canvas *c)
 {
-    gfx_text(c,66,51,"NO FRAMES",2,C_IVORY);
-    gfx_text(c,72,78,"LISTEN ONLY",1,C_YELLOW);
+    const char *message = "NO FRAMES";
+    const char *mode = "LISTEN ONLY";
+    gfx_text(c,(UI_WIDTH-gfx_width(message,2))/2,51,message,2,C_IVORY);
+    gfx_text(c,(UI_WIDTH-gfx_width(mode,1))/2,78,mode,1,C_YELLOW);
 }
 
 static void rate_text(char *text, size_t size, unsigned int kbit)
@@ -139,9 +142,9 @@ static void overview(struct canvas *c, const struct analyzer_model *m,
     gfx_text(c,152,43,"IDS",1,C_IVORY);
     if (m->rate > 99999U) { snprintf(text,sizeof(text),"99999+"); }
     else { snprintf(text,sizeof(text),"%u",(unsigned int)m->rate); }
-    gfx_text(c,6,55,text,3,C_YELLOW);
+    gfx_text_mono(c,6,55,text,3,C_YELLOW);
     snprintf(text,sizeof(text),"%u%s",m->id_count,m->cache_limited?"+":"");
-    gfx_text(c,152,55,text,3,C_IVORY);
+    gfx_text_mono(c,152,55,text,3,C_IVORY);
     snprintf(text,sizeof(text),"RX %u",(unsigned int)m->total);
     gfx_text(c,6,86,text,1,C_IVORY);
     snprintf(text,sizeof(text),"BUS %s",bus_name(m->bus));
@@ -168,9 +171,9 @@ static void frames(struct canvas *c, const struct analyzer_model *m, const struc
         if (i==s->selected) { gfx_rect(c,4,y-1,232,20,C_IVORY); }
         char text[24];
         snprintf(text,sizeof(text),r->flags&FRAME_EXT?"X %08X":"S %03X",(unsigned int)r->id);
-        gfx_text(c,8,y+2,text,2,fg);
+        gfx_text_mono(c,8,y+2,text,2,fg);
         snprintf(text,sizeof(text),"%u",r->length);
-        gfx_text(c,146,y+2,text,2,fg);
+        gfx_text_mono(c,146,y+2,text,2,fg);
         gfx_text(c,188,y+6,type_name(r),1,fg);
     }
 }
@@ -180,34 +183,36 @@ static void data(struct canvas *c, const struct analyzer_model *m, const struct 
     const struct id_record *r=&m->ids[s->selected];
     char text[40];
     snprintf(text,sizeof(text),r->flags&FRAME_EXT?"X %08X":"S %03X",(unsigned int)r->id);
-    gfx_text(c,6,25,text,2,C_YELLOW);
+    gfx_text_mono(c,6,25,text,2,C_YELLOW);
     snprintf(text,sizeof(text),"%s %uB",type_name(r),r->length);
     gfx_text(c,146,29,text,1,C_IVORY);
     if (r->flags&FRAME_RTR) {
         gfx_text(c,12,53,"REMOTE FRAME",2,C_IVORY);
         gfx_text(c,12,77,"NO PAYLOAD",1,C_YELLOW);
     } else {
+        /* Show 16 bytes per page in four fixed columns. Short frames use dashes
+         * in unused cells so the byte offsets keep their positions. */
         unsigned int start=s->byte_page*16U;
         for (unsigned int row=0; row<4U; ++row) {
             int y=44+(int)row*16;
             unsigned int offset=start+row*4U;
             snprintf(text,sizeof(text),"%02X",offset);
-            gfx_text(c,6,y+4,text,1,C_YELLOW);
+            gfx_text_mono(c,6,y+4,text,1,C_YELLOW);
             for (unsigned int col=0; col<4U; ++col) {
                 unsigned int i=offset+col;
                 if (i<r->length) { snprintf(text,sizeof(text),"%02X",r->data[i]); }
                 else { snprintf(text,sizeof(text),"--"); }
-                gfx_text(c,30+(int)col*36,y,text,2,C_IVORY);
+                gfx_text_mono(c,30+(int)col*36,y,text,2,C_IVORY);
             }
         }
     }
-    gfx_text(c,177,49,"COUNT",1,C_YELLOW);
+    gfx_text(c,172,49,"COUNT",1,C_YELLOW);
     snprintf(text,sizeof(text),"%u",(unsigned int)r->count);
-    gfx_text(c,177,62,text,1,C_IVORY);
-    gfx_text(c,177,81,"AGE",1,C_YELLOW);
+    gfx_text(c,172,62,text,1,C_IVORY);
+    gfx_text(c,172,81,"AGE",1,C_YELLOW);
     uint32_t age=m->now_ms-r->seen_ms;
     snprintf(text,sizeof(text),age<1000U?"%uMS":"%uS",(unsigned int)(age<1000U?age:age/1000U));
-    gfx_text(c,177,94,text,1,C_IVORY);
+    gfx_text(c,172,94,text,1,C_IVORY);
 }
 static void storage_page(struct canvas *c, const struct ui_state *s)
 {
@@ -267,22 +272,22 @@ void ui_render(struct canvas *c, const struct analyzer_model *m,
     char index[20];
     gfx_clear(c,C_NAVY);
     if (s->page==PAGE_OVERVIEW) {
-        header(c,m,s,"OVERVIEW","1/5",wall_ms);
+        header(c,m,s,"Overview","1/5",wall_ms);
         overview(c,m,s);
     } else if (s->page==PAGE_FRAMES) {
         snprintf(index,sizeof(index),"%02u/%02u",m->id_count?s->selected+1U:0U,m->id_count);
-        header(c,m,s,"FRAMES",index,wall_ms);
+        header(c,m,s,"Frames",index,wall_ms);
         frames(c,m,s);
     } else if (s->page == PAGE_DATA) {
         unsigned int n=m->id_count?data_pages(&m->ids[s->selected]):1U;
         snprintf(index,sizeof(index),"%u/%u",s->byte_page+1U,n);
-        header(c,m,s,"DATA",index,wall_ms);
+        header(c,m,s,"Data",index,wall_ms);
         data(c,m,s);
     } else if (s->page == PAGE_STORAGE) {
-        header(c,m,s,"STORAGE","4/5",wall_ms);
+        header(c,m,s,"Storage","4/5",wall_ms);
         storage_page(c,s);
     } else {
-        header(c,m,s,"RATE","5/5",wall_ms);
+        header(c,m,s,"Rate","5/5",wall_ms);
         draw_rate_page(c,s,wall_ms);
     }
     footer(c,s);

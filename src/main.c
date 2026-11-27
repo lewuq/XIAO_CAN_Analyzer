@@ -101,7 +101,7 @@ static void key_action(const struct key_event *event)
 
 int main(void)
 {
-    printk("\nCAN ANALYZER v5; FDCAN2 AUTO/MANUAL LISTEN; LCD 50%%\n");
+    printk("\nCAN ANALYZER V5.1; FDCAN2 AUTO/MANUAL LISTEN; LCD 50%%\n");
     int ret=display_init();
     if (ret<0) { printk("Display init failed: %d\n",ret); return ret; }
     ret=analyzer_start();
@@ -122,6 +122,7 @@ int main(void)
         const struct analyzer_model *view=state.holding?&held:&live;
         ui_clamp(&state,view);
         ui_render(next,view,&state,k_uptime_get_32());
+        /* Compare panel-order pixels against the last successfully sent frame. */
         struct panel_rect regions[DIRTY_MAX_REGIONS];
         size_t count = dirty_regions(next->pixels, previous ? previous->pixels : NULL, regions);
         for (size_t i = 0; i < count; ++i) {

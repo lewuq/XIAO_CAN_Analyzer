@@ -21,6 +21,8 @@ void gfx_pixel(struct canvas *c, int x, int y, uint16_t color);
 uint16_t gfx_read(const struct canvas *c, int x, int y);
 void gfx_rect(struct canvas *c, int x, int y, int w, int h, uint16_t color);
 void gfx_clear(struct canvas *c, uint16_t color);
-int gfx_width(const char *s, int scale);
-void gfx_text(struct canvas *c, int x, int y, const char *s, int scale, uint16_t color);
+/* Native font size: 1 for labels, 2 for headings and frames, 3 for counters. */
+int gfx_width(const char *s, int size);
+void gfx_text(struct canvas *c, int x, int y, const char *s, int size, uint16_t color);
+void gfx_text_mono(struct canvas *c, int x, int y, const char *s, int size, uint16_t color);
 #endif
